@@ -4,7 +4,7 @@ This is the code to reproduce our experiments in our [Axiv Paper](http://arxiv.o
 ```
 Frank-Wolfe Algorithm for Saddle Point Problem.
 ```
-The project page of this article is ```http://www.di.ens.fr/sierra/research/SPFW/```.
+The project page of this article is ```http://www.di.ens.fr/sierra/research/SPFW/.``` 
 This project contains the implementation of SP-FW and SP-AFW on a strongly convex toy example (quadratic objective function with low dimentional constraints.
 It also contains the implementation of SP-FW (and SP-BCFW) on the OCR dataset. In that case the objective function is bilinear.
 
