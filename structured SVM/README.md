@@ -1,4 +1,4 @@
-#BCFWstruct
+#SP-FWstruct
 
 This README mainly comes from ```https://github.com/ppletscher/BCFWstruct```
 
