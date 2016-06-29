@@ -1,8 +1,6 @@
 #BCFWstruct
 
-BCFWstruct is a Matlab implementation of the Block-Coordinate Frank-Wolfe solver
-for Structural SVMs. For more information about the algorithm please check our
-[ICML 2013 paper](http://jmlr.org/proceedings/papers/v28/lacoste-julien13-supp.pdf).
+This README mainly comes from ```https://github.com/ppletscher/BCFWstruct```
 
 The code is organized as follows:
 * `solvers` contains the optimization methods, including the block-coordinate 
@@ -18,7 +16,7 @@ The code is organized as follows:
 ##Getting Started
 
 1. You need a working installation of Matlab.
-2. Clone the git repository: `git clone git@github.com:ppletscher/BCFWstruct.git` (or if you don't want to use git, you can download a zip file of the latest version of the code by following [this link](https://github.com/ppletscher/BCFWstruct/archive/master.zip)).
+2. Clone the git repository.
 3. Obtain the data files required to run the demos. On Unix systems you can
    simply run `./fetch_data.sh`. On Windows, you can use
    [Cygwin](http://www.cygwin.com/) or manually download the listed files and
@@ -28,7 +26,7 @@ The code is organized as follows:
 
 ##Usage
 
-If you would like to use the BCFW solver for your own structured output
+If you would like to use the SP-FW solvers for your own structured output
 prediction problem, you will need to implement three functions:
 
 * The feature map.
@@ -38,29 +36,6 @@ prediction problem, you will need to implement three functions:
 You can find an example implementation in the `demo/chain` folder. For an
 overview of the exact usage and the supported options, please check the Matlab
 documentation of the solvers.
-
-Note that BCFW uses a similar calling interface as the one from the Matlab
-wrapper to SVM^struct [implemented by Andrea Vedaldi](http://www.vlfeat.org/~vedaldi/code/svm-struct-matlab.html). Users of SVM^struct can thus easily use BCFW with only a tiny change in their code (see the Matlab documentation of solverBCFW for more details).
-
-
-##Citation
-
-Please use the following BibTeX entry to cite this software in your work:
-
-    @inproceedings{LacosteJulien2013,
-      author    = {Lacoste-Julien, Simon and Jaggi, Martin and Schmidt, Mark and Pletscher, Patrick},
-      title     = {Block-Coordinate {F}rank-{W}olfe Optimization for Structural {SVMs}},
-      booktitle = {ICML},
-      year      = {2013},
-    }
-
-
-##Authors
-
-* [Simon Lacoste-Julien](http://www.di.ens.fr/~slacoste/)
-* [Martin Jaggi](http://www.cmap.polytechnique.fr/~jaggi/)
-* [Mark Schmidt](http://www.di.ens.fr/~mschmidt/)
-* [Patrick Pletscher](http://pletscher.org)
 
 
 ##Octave Support
