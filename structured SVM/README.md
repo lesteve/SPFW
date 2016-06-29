@@ -3,8 +3,8 @@
 This README mainly comes from ```https://github.com/ppletscher/BCFWstruct```
 
 The code is organized as follows:
-* `solvers` contains the optimization methods, including the block-coordinate 
-  Frank-Wolfe solver (BCFW). If you want to use BCFW in your project, you most
+* `solvers` contains the optimization methods, including the saddle point block-coordinate 
+  Frank-Wolfe solver (SP-BCFW). If you want to use SP-BCFW in your project, you most
   likely only need to run an `addpath(genpath('solvers'))` in your Matlab sources.
 * `demos` contains the application-dependent code, such as MAP decoding or the
   feature map computation. The source code includes a sequence prediction demo
