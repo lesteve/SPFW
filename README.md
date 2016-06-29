@@ -20,14 +20,14 @@ This code is not meant to be the most efficient. Our goal was to simply check if
 ##Citation
 
 Please use the following BibTeX entry to cite this software in your work:
-
+```
   @InProceedings{gidel2016saddle,
   author      = {Gidel, Gauthier and Jebara, Tony and Lacoste-Julien, Simon},
   title       = {Frank-{W}olfe {A}lgorithms for {S}addle {P}oint {P}roblems},
   booktitle   = {},
   year        = {2016} 
 }
-
+```
 ##Authors
 
 * [Gauthier Gidel](http://www.di.ens.fr/~gidel/)
