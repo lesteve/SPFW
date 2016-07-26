@@ -14,7 +14,7 @@ There are two folders :
 
 ##Aknowledgements
 
-We want to aknowledge [Simon Lacoste-Julien](http://www.di.ens.fr/~slacoste/), [Martin Jaggi](http://www.cmap.polytechnique.fr/~jaggi/), [Mark Schmidt](http://www.di.ens.fr/~mschmidt/) and [Patrick Pletscher](http://pletscher.org) for the ope source code on [BCFW](https://github.com/ppletscher/BCFWstruct). Our code on OCR experiments in an extension of theirs.
+We want to aknowledge [Simon Lacoste-Julien](http://www.di.ens.fr/~slacoste/), [Martin Jaggi](http://www.cmap.polytechnique.fr/~jaggi/), [Mark Schmidt](http://www.di.ens.fr/~mschmidt/) and [Patrick Pletscher](http://pletscher.org) for the open source code on [BCFW](https://github.com/ppletscher/BCFWstruct). Our code on OCR experiments in an extension of theirs.
 
 ##Disclaimer
 
