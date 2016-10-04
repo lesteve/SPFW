@@ -1,102 +1,68 @@
-% Frank-Wolfe algorithm **with away steps**
-%===== ALG CHOICE ========
-away = 1
+function G = SP_FW(Kmax,mu,M,cst,dim,a,b,away,adaptive)
+
+% Solve the saddle point problem 
+% L(x,y) = mu*\|x\|^2 - x^\top M y - mu*\|y\|^2
+% Using the SF-FW algorithm see (Gidel, Jebara, Lacoste-Julien,2016)
+% For more details. This is algorithm 2 of the paper if away = 0 
+% and algorithm 3 if away = 1.
+% Each step does a FW step and record the value of the FW gap.
+% Inputs:
+%   Kmax: The number of iteration
+%   mu: The value of the mu convexity constant     
+%   cst: The matrix M \sim Unif([-cst,cst]^2*dim)
+%   dim: Dimension of the problem
+%   a: position of the saddle point in \X
+%   b: position of the saddle point in \Y
+%   away: chose if the algorithm is SP-FW of SP-AFW
+%   adaptive: define the step size of the algorithm
+%       
+% %===== ALG CHOICE ========
     % use 0 for regular FW
     % use 1 for away step
-% saddle point function:
-% L(x,y) = x^2 - 2*alpha*x*y - y^2
 % ==== STEP SIZE CHOICE =====
-% adaptive = 1; % flag to choose adaptive step-size
     % use adaptive == 1 for gap/C
-    % use adpative == 2 for line-search...
+    % use adaptive == 2 for extended line-search...
     % use adaptive == 3 for 2/(2+k)
-safety = 0; % flag to use the 2/(k+2) safety when using big step-size...
-% ==========================
-
-x = -1:0.05:1;
-[X,Y] = meshgrid(x,x);
-%L = inline('X.^2 - 2*c*X.*Y - Y.^2', 'X','Y','c');
-
-% dim= 30;
-rng(2)
-% cst = .1
-M = cst.* (2.*rand(dim,dim)-1); % for 
-
-% Frank-Wolfe; variational inequality...
-
-% original function:
-%F = @(x,y,c) [2*x - 2*c*y; 2*c*x+2*y]; % F(z)
-% above converges at 1/k easily...
-
-% Now considering translated version:
-%L = inline('0.5*(X-a).^2 - c*(X-a).*(Y-b) - 0.5*(Y-b).^2', 'X','Y','c');
-% put global saddle point at (a,b), not sure now what will happen!
-metaL = @(x,y,M,a,b,strong) 0.5.*strong.*sum((x-a).^2) - (x-a)'*M*(y-b)-0.5.*strong.*sum((y-b).^2); 
-metaF = @(x,y,M,a,b,strong) [strong.*(x-a) - M*(y-b); M'*(x-a)+strong.*(y-b)]; 
-% a = 2*ones(dim,1)-1; b=2*ones(dim,1)-1; 
-% strong=8.4; % strong = convexity for each term
-%100 50 35 31.8
-F = @(x,y,M) metaF(x,y,M,a,b,strong); % F(z)
-L = @(x,y,M) metaL(x,y,M,a,b,strong);
-
-%Z = L(X,Y,c);
-%surf(X,Y,Z)
-
-%
-% [m,i] = max(abs(F)
-S = @(F) -sign(F+eps);
-
-% gap = <S(z) - z, -F(z) >
+    % use adaptive == 4 for gap/\tilde C (heuristic step size)
+% ==== SAFETY =====
+    % use safety == 1 for a step size max(2/2+k,step) (useful with extended line-search)
+    % use safety == 0 for algorithm as described in the paper
 
 
-%C = strong*4; %L*diam^2 -- old constant
-mu = strong; % strong convexity constant
+% Definition of the LMO 
+metaF = @(x,y,M,a,b,mu) [mu.*(x-a) - M*(y-b); M'*(x-a)+mu.*(y-b)]; 
+F = @(x,y,M) metaF(x,y,M,a,b,mu); % F(z)
+S = @(F) -(sign(F+eps)-1)*.5;
 
-% distance_x = min(abs(a-1), abs(a+1));
-% distance_y = min(abs(b-1), abs(b+1));
-% distance_boundary = min(distance_x,distance_y);
-% mu_FW = mu*(distance_boundary^2);
-% M_L = 2*c*2; % L_xy D_x D_y
-% alpha = sqrt(2)*M_L / mu_FW; % alpha in NIPS Gauthier submission
-
-% ** new correct constants **
-% C = C_x + C_y + M_xy * M_yx [D_x^2/mu_x + D_y^2/mu_y]
-% note diameter here is 2 for each dimension...
-
-%
-delta = min(norm(min([a - 1, a + 1]'),2),norm(min([b-1,b+1]),2));
-Pwidth = 1/sqrt(dim);
-diam = 2* sqrt(dim);
+% Computation of the constants of the problem we used the \ell_\infty norm
+delta = min(norm(min([1-a, a]'),2),norm(min([1-b,b]),2)); 
+% \delta_\X :=  \min_{\s_x \in \partial  \X} \|\x^* -\s\|, \delta = \min (\delta_\x, \delta_\Y) 
+Pwidth = 1/sqrt(dim); %Cf On the global linear convergence of Frank-Wolfe optimization variants S Lacoste-Julien, M Jaggi - Advances in Neural Information …, 2015 - papers.nips.cc
+diam = 1; 
 if away==1
-    alpha = 1/2 - 1/(strong*Pwidth^2)*max(max(M))*diam/(strong)
+    tau = 1/2 - sqrt(2)/(mu*Pwidth^2)*max(max(M))*diam/(mu)
 else 
-    alpha = 1 - 1/(strong*delta^2)*max(max(M))*diam/(strong)
+    tau = 1 - sqrt(2)/(mu*delta^2)*max(max(M))*diam/(mu)
 end
-% assert(alpha >0)
+
 % Maybe the "good" C
 if adaptive ==4
-    C = 2*strong*diam^2+ max(max(abs(M)))^2*(diam^2/strong+diam^2/strong)
+    C = 2*mu*diam^2+ max(max(abs(M)))^2*(diam^2/mu+diam^2/mu)
 else 
-    C = strong*diam^2/alpha;
+    C = mu*diam^2/tau;
 end
 
 if adaptive > 0
     gamma_coef = 1/(C)   
 end
 
-
-
-
-
-% x_0 = [zeros(dim,1); zeros(dim,1)];
-% x_0(1)=1;
-% x_0(dim+1)=1;
-x_0 = [sign(2*rand(dim,1)-1); sign(2*rand(dim,1)-1)];
+% ==== INITIALIZATION ====
+x_0 = [ones(dim,1); zeros(dim,1)];
 S_0 = x_0;
 alpha_0 = 1;
 
 iter = 1;
-tol = 1e-5;
+tol = 1e-6;
 G = [];
 
 z           = x_0;
@@ -110,45 +76,37 @@ mapping = containers.Map();
 % alpha_t(i) == 0 implies vertex is not active anymore...
 % alpha_t will be a weight vector so that x_t = S_t * alpha_t
 
-% constructing mapping:
+ constructing mapping:
 max_index = size(S_t,2); % keep track of size of S_t
 for index = 1:max_index
     mapping(hashing(S_t(:,index))) = index; 
 end
 I_active = find(alpha_t > 0);
 gap_best = 10^10;
-% tracking results:
 
+% tracking results:
 number_drop = 0; % counting drop steps (max stepsize for away step)
 number_away = 0;
 
+% ==== MAIN ALGORITHM ====
 for k = 0:Kmax
-    
     Fz = F(z(1:dim),z(dim+1:end),M);
-    
-
     Sz = S(Fz); % FW-corner
-    % [m,i_x] = max(abs(Fz(1:dim)));
-    % [m,i_y] = max(abs(Fz(dim+1:end)));
-    % Sz = zeros(2*dim,1);
-    % Sz(i_x) = -sign(Fz(i_x));
-    % Sz(i_y+dim) = -sign(Fz(i_y+dim));
-
     s_FW = Sz;
-    grad = Fz;
-    
+    grad = Fz; 
     d_FW     = s_FW - z;
     gap= - d_FW' * grad;
     gap_best = min(gap,gap_best);
     G(iter) = gap_best; % keep track of FW gaps..
-    
     if gap < tol
         fprintf('Converged at iter %d!\n', iter)
+        if gap < 0 
+            assert false
+        end
         break
     end
     if away 
-         % away direction search:
-
+        % away direction search:
         if ~isempty(S_t) 
             id_A   = away_step(Fz, S_t, I_active);
             v_A    = S_t(:, id_A);
@@ -183,7 +141,6 @@ for k = 0:Kmax
             gamma_k = 2./(2+iter);
         end
         step = gamma_k;
-
       
         % doing steps and updating active set:
         
@@ -195,7 +152,6 @@ for k = 0:Kmax
                 number_drop = number_drop+1;
                 alpha_t(id_A) = 0;
                 I_active(I_active == id_A) = []; % remove from active set
-                %TODO: could possibly also remove it from S_t
             else
                 alpha_t(id_A) = alpha_t(id_A) - step;
             end
@@ -204,7 +160,7 @@ for k = 0:Kmax
             alpha_t = (1-step)*alpha_t;
             
             % is this s_FW a new vertex?
-            h = hashing(s_FW);
+            h = hashing(2*s_FW-1);
             if ~mapping.isKey(h)
                 % we need to add vertex in S_t:
                 max_index = max_index + 1;
@@ -222,7 +178,6 @@ for k = 0:Kmax
                 end
                 alpha_t(id_FW) = alpha_t(id_FW) + step;
             end
-            
             % exceptional case: stepsize of 1, this collapses the active set!
             if step > 1-eps;
                 I_active = [id_FW];
@@ -232,23 +187,12 @@ for k = 0:Kmax
             step = min(1,gamma_coef*gap);
             d = d_FW;
     end
-
+    if adaptive ==3
+            step = 2./(2+iter);
+    end
     z = z + step * d;
-    % assert(max(abs(z(1:dim)))<=1 +1000*eps)
-    % assert(max(abs(z(dim:end)))<=1 +1000*eps)
-    %z = (1-gamma_k)*z + gamma_k * Sz;
-
     iter = iter+1;
 end
-
-% rng(C/100)
-% if adaptive
-%     semilogy(G,'color',[rand,rand,rand])
-% else
-%     semilogy(G,'color',[rand,rand,rand])
-%     %loglog(G)
-% end
-
 
 
     

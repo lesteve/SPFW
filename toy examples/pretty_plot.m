@@ -12,7 +12,9 @@ dim = 30;
 %set solution at the boundary
 a = 2*ones(dim,1)-1; b=2*ones(dim,1)-1; 
 
-% strongs = [1.15 ;1.5; 3;10]; %For int-SPFW
+% Initialization of the random matrix
+M = cst.* (2.*rand(dim,dim)-1);
+
 % cst = .04;
 % dim = 5 
 adaptive = 3; %Cf SP_FW code
