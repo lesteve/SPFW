@@ -1,4 +1,4 @@
-function G = SP_FW(Kmax,mu,M,cst,dim,a,b,away,adaptive)
+function [G,iter,tau] = SP_FW(Kmax,mu,M,cst,dim,a,b,away,adaptive)
 
 % Solve the saddle point problem 
 % L(x,y) = mu*\|x\|^2 - x^\top M y - mu*\|y\|^2
@@ -27,7 +27,7 @@ function G = SP_FW(Kmax,mu,M,cst,dim,a,b,away,adaptive)
 % ==== SAFETY =====
     % use safety == 1 for a step size max(2/2+k,step) (useful with extended line-search)
     % use safety == 0 for algorithm as described in the paper
-
+safety = 0;
 
 % Definition of the LMO 
 metaF = @(x,y,M,a,b,mu) [mu.*(x-a) - M*(y-b); M'*(x-a)+mu.*(y-b)]; 
@@ -38,22 +38,26 @@ S = @(F) -(sign(F+eps)-1)*.5;
 delta = min(norm(min([1-a, a]'),2),norm(min([1-b,b]),2)); 
 % \delta_\X :=  \min_{\s_x \in \partial  \X} \|\x^* -\s\|, \delta = \min (\delta_\x, \delta_\Y) 
 Pwidth = 1/sqrt(dim); %Cf On the global linear convergence of Frank-Wolfe optimization variants S Lacoste-Julien, M Jaggi - Advances in Neural Information …, 2015 - papers.nips.cc
-diam = 1; 
+diam = sqrt(dim); % computed with the \ell_2 norm
+C_L = mu * diam^2; % exact computation of the curvature for quadratic objective
+mu_A = mu * Pwidth^2;
+mu_int = mu * delta^2 ;
+M_L = sqrt(2/mu) * norm(M) * diam;
 if away==1
-    tau = 1/2 - sqrt(2)/(mu*Pwidth^2)*max(max(M))*diam/(mu)
+    tau = 1/2 - M_L/(mu_A)
 else 
-    tau = 1 - sqrt(2)/(mu*delta^2)*max(max(M))*diam/(mu)
+    tau = 1 - M_L/(mu_int)
 end
 
 % Maybe the "good" C
-if adaptive ==4
-    C = 2*mu*diam^2+ max(max(abs(M)))^2*(diam^2/mu+diam^2/mu)
+if adaptive == 4
+    C = 2*mu*diam^2+ norm(M)^2*(diam^2/mu+diam^2/mu)
 else 
-    C = mu*diam^2/tau;
+    C = 2*mu*diam^2/tau;
 end
 
 if adaptive > 0
-    gamma_coef = 1/(C)   
+    gamma_coef = 1/(C);
 end
 
 % ==== INITIALIZATION ====
@@ -76,7 +80,7 @@ mapping = containers.Map();
 % alpha_t(i) == 0 implies vertex is not active anymore...
 % alpha_t will be a weight vector so that x_t = S_t * alpha_t
 
- constructing mapping:
+% constructing mapping:
 max_index = size(S_t,2); % keep track of size of S_t
 for index = 1:max_index
     mapping(hashing(S_t(:,index))) = index; 
@@ -115,9 +119,8 @@ for k = 0:Kmax
         else
             fprintf('error: empty support set at step (it=%f)\n', it);
         end
-         
+
         % construct direction (between towards and away):
-        
         if isempty(S_t) || - gap <= d_A' * grad
             is_aw = false; % this is a pure FW step
             d = d_FW; 
@@ -137,8 +140,8 @@ for k = 0:Kmax
         end
         gamma = gamma_coef*gap_AFW;
         gamma_k = min([gamma,gamma_max,max_step]);
-        if adaptive ==3
-            gamma_k = 2./(2+iter);
+        if adaptive == 3
+            gamma_k = min(2./(2+iter),max_step);
         end
         step = gamma_k;
       
@@ -183,14 +186,18 @@ for k = 0:Kmax
                 I_active = [id_FW];
             end
         end
+    elseif adaptive ==3
+            step = 2./(2+iter);
+            d = d_FW;
     else
+        
             step = min(1,gamma_coef*gap);
             d = d_FW;
     end
-    if adaptive ==3
-            step = 2./(2+iter);
-    end
     z = z + step * d;
+    if min(z)< -10*eps
+        fprintf('error: out of convex set at step (it=%f)\n', it);
+    end
     iter = iter+1;
 end
 

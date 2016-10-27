@@ -1,3 +1,6 @@
+%PEGD with SP at the boundary
+% with exact projection 
+
 % the library prettyplot needs to be loaded
 addpath('~/Documents/MATLAB/export_fig-master')
 addpath('~/Documents/MATLAB/prettyPlot')
@@ -12,16 +15,16 @@ clear options
 strongs = [.001;0.5;1;10]; %FOR SP-AFW
 cst = .1;
 dim = 30;
-a = [rand(dim,1)./2 + .25]; 
-b = [rand(dim,1)./2 + .25]; 
+a = [-(sign(2*rand(dim/2,1)-1)-1)*.5; rand(dim/2,1)]; 
+b = [-(sign(2*rand(dim/2,1)-1)-1)*.5; rand(dim/2,1)]; 
 M = cst.* (2.*rand(dim,dim)-1); 
-Kmax = 2000;
+Kmax = 100;
 away = 0;
 alg = 0;
 for i = 1:4
-	adaptive = 0;
+	adaptive = 1;
 	strong = strongs(i);
-	[G,niter] = PEGD(Kmax,strong,M,cst,dim,a,b,away,adaptive);
+	[G,niter] = EPGD(Kmax,strong,M,cst,dim,a,b,away,adaptive);
 	fEvals{end+1} = (1:(niter-1));
 	fVals{end+1}=G(1:niter-1);
 	Mus{end+1} = strcat('$\mu =',num2str(strong,1),'$');
@@ -32,12 +35,12 @@ options.logScale = 2;
 options.colors = {'c','b','g',[1 0.5 0],'r'};
 options.lineStyles =  {'--','--','-','-','-'};
 options.markers ={'s','o','d','p','d'};
-% options.markerSpacing = [40 10
-% 	40 100
-% 	40 5
-% 	40 8
-% 	40 2
-% 	40 5];
+options.markerSpacing = [400 10
+	400 100
+	40 5
+	40 8
+	40 2
+	40 5];
 options.lineSize = 8;
 % options.markerSpacing = markerSpacing;
 % options.legendStr = names;

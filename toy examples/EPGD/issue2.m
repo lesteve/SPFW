@@ -1,3 +1,6 @@
+%PEGD with SP in the interior
+% with exact projection 
+
 % the library prettyplot needs to be loaded
 addpath('~/Documents/MATLAB/export_fig-master')
 addpath('~/Documents/MATLAB/prettyPlot')
@@ -7,21 +10,22 @@ rng(2)
 % ==== INITIALIZATION ====
 fEvals={};
 fVals= {};
+
 Mus = {};
 clear options
 strongs = [.001;0.5;1;10]; %FOR SP-AFW
 cst = .1;
 dim = 30;
-a = [-(sign(2*rand(dim/2,1)-1)-1)*.5; rand(dim/2,1)]; 
-b = [-(sign(2*rand(dim/2,1)-1)-1)*.5; rand(dim/2,1)]; 
+a = [rand(dim,1)./2 + .25]; 
+b = [rand(dim,1)./2 + .25]; 
 M = cst.* (2.*rand(dim,dim)-1); 
-Kmax = 100;
+Kmax = 4000;
 away = 0;
 alg = 0;
-for i = 1:4
-	adaptive = 1;
+for i = 1:length(strongs)
+	adaptive = 0;
 	strong = strongs(i);
-	[G,niter] = PEGD(Kmax,strong,M,cst,dim,a,b,away,adaptive);
+	[G,niter] = EPGD(Kmax,strong,M,cst,dim,a,b,away,adaptive);
 	fEvals{end+1} = (1:(niter-1));
 	fVals{end+1}=G(1:niter-1);
 	Mus{end+1} = strcat('$\mu =',num2str(strong,1),'$');

@@ -1,4 +1,4 @@
-function [G,iter] = PEGD(Kmax,mu,M,cst,dim,a,b,alg,adaptive)
+function [G,iter] = EPGD(Kmax,mu,M,cst,dim,a,b,alg,adaptive)
 % Projected Extra-gradient Descent
 % Solve the saddle point problem 
 % L(x,y) = mu*\|x\|^2 - x^\top M y - mu*\|y\|^2
@@ -21,12 +21,12 @@ function [G,iter] = PEGD(Kmax,mu,M,cst,dim,a,b,alg,adaptive)
     % use alg == 2 for epsilon/2 precision of inexact projection with AFW
 % ==== STEP SIZE CHOICE =====
     % use adaptive == 0 for 1/L
-    % use adaptive == 1 for 1/(1+k)
+    % use adaptive == 1 for 1/sqrt(1+k)
     % use adaptive == 2 adaptive step size
 if alg == 0
     proj = @(z,z_0) exact_proj(z);
 elseif alg == 1
-    proj = @(z,z_0) AFW(z,z_0,1,epsilon);
+    proj = @(z,z_0) AFW(z,z_0,1,1e-10);
 else
     proj = @(z,z_0) AFW(z,z_0,0,epsilon);
 end  
@@ -34,7 +34,7 @@ end
 if adaptive == 0
     step = @(k) .1/mu;
 elseif adaptive == 1
-    step = @(k) 1/(norm(M)*sqrt(k+1));
+    step = @(k) 1/(max(norm(M),mu)*sqrt(k+1));
 else
     step = @(k) k; %see later
 end  
