@@ -1,4 +1,4 @@
-function p = AFW(z,z_0,niter,epsilon)
+function [p,iter] = AFW(z,z_0,niter,epsilon)
 % Project on the unit cube with AFW
 %===== ALG CHOICE ========
 % use niter == 0 for projection with epsilon precision.
@@ -52,7 +52,7 @@ for k = 0:Kmax
     grad = Fz; 
     d_FW = s_FW - p;
     gap= - d_FW' * grad;
-    if gap < tol
+    if gap < tol && k > 0
         % fprintf('Converged at iter %d!\n', iter)
         if gap < 0 
             assert false

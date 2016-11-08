@@ -1,5 +1,5 @@
-function [G,iter] = EPGD(Kmax,mu,M,cst,dim,a,b,alg,adaptive,tol)
-% Extra-Projected gradient Descent
+function [G,iter] = PGD(Kmax,mu,M,cst,dim,a,b,alg,adaptive,tol)
+% Projected gradient Descent
 % Solve the saddle point problem 
 % L(x,y) = mu*\|x\|^2 - x^\top M y - mu*\|y\|^2
 % Using the Projected Extra-gradient Descent see Korpelevich 197
@@ -28,7 +28,7 @@ if alg == 0
 elseif alg == -1
     proj = @(z,z_0,prec) AFW(z,z_0,0,prec);
 else
-    proj = @(z,z_0,prec) AFW(z,z_0,alg,1e-16);
+    proj = @(z,z_0,prec) AFW(z,z_0,alg,1e-10);
 end  
 
 if adaptive == 0
@@ -78,7 +78,14 @@ for k = 0:Kmax
         break
     end
     gap_best = min(gap_best,gap);
-    [z,niter] = proj(z - step(iter) * Fz,z,gap_best);
+    [z_bar,niter] = proj(z - step(iter) * Fz,z,gap_best);
+    if iter + niter > Kmax
+        break
+    end
+    G(iter:iter+niter) = gap;
+    iter = iter + niter;
+    Fz_bar = F(z_bar(1:dim),z_bar(dim+1:end));
+    [z,niter] = proj(z - step(iter) * Fz_bar,z,gap_best);
     if iter + niter > Kmax
         break
     end

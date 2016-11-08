@@ -19,7 +19,6 @@ a = [-(sign(2*rand(dim/2,1)-1)-1)*.5; rand(dim/2,1)];
 b = [-(sign(2*rand(dim/2,1)-1)-1)*.5; rand(dim/2,1)]; 
 M = cst.* (2.*rand(dim,dim)-1); 
 Kmax = 100;
-away = 0;
 alg = 0;
 for i = 1:4
 	adaptive = 1;
