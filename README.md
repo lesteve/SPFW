@@ -26,8 +26,8 @@ Please use the following BibTeX entry to cite this software in your work:
 ```
 @InProceedings{gidel2016saddle,
   author      = {Gidel, Gauthier and Jebara, Tony and Lacoste-Julien, Simon},
-  title       = {Frank-{W}olfe {A}lgorithms for {S}addle {P}oint {P}roblems},
-  booktitle   = {},
+  title       = {{F}rank-{W}olfe Algorithms for Saddle Point Problems},
+  booktitle   = {arXiv:1610.07797},
   year        = {2016} 
 }
 ```
