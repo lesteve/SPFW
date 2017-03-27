@@ -1,4 +1,4 @@
-function [G,iter] = EPGD(Kmax,mu,M,cst,dim,a,b,alg,adaptive,tol)
+function [G,iter] = EPGD(Kmax,mu,M,cst,dim,a,b,alg,adaptive,tol,c)
 % Extra-Projected gradient Descent
 % Solve the saddle point problem 
 % L(x,y) = mu*\|x\|^2 - x^\top M y - mu*\|y\|^2
@@ -78,7 +78,7 @@ for k = 0:Kmax
         break
     end
     gap_best = min(gap_best,gap);
-    [z,niter] = proj(z - step(iter) * Fz,z,gap_best);
+    [z,niter] = proj(z - step(iter) * Fz,z,c./k);
     if iter + niter > Kmax
         break
     end
